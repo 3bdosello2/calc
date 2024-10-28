@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iPhone-like Calculator</title>
+    <title>Calculator</title>
     <style>
         body {
             display: flex;
@@ -15,7 +15,6 @@
         }
         .iphone-frame {
             width: 360px;
-            height: 640px;
             border-radius: 40px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
             background-color: #000;
@@ -23,16 +22,7 @@
             box-sizing: border-box;
             position: relative;
         }
-        .notch {
-            width: 210px;
-            height: 30px;
-            background-color: #000;
-            border-radius: 20px 20px 0 0;
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-        }
+        
         .calculator {
             width: 100%;
             height: 100%;
@@ -54,6 +44,17 @@
             border-radius: 20px;
             box-sizing: border-box;
             margin-bottom: 20px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            position: relative;
+        }
+        .operation {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 1em;
+            color: #bbb;
         }
         .buttons {
             display: grid;
@@ -73,6 +74,10 @@
         .button:active {
             background-color: #555;
         }
+        .button:hover {
+            background-color: #ffffff;
+            color: #000;
+        }
         .button.orange {
             background-color: #f90;
         }
@@ -84,8 +89,11 @@
 <body>
     <div class="iphone-frame">
         <div class="notch"></div>
-        <div class="calculator">
-            <div class="display" id="display">0</div>
+        <div class="calculator"></div>
+            <div class="display" id="display">
+                <div class="operation" id="operation"></div>
+                0
+            </div>
             <div class="buttons">
                 <button class="button" onclick="clearDisplay()">AC</button>
                 <button class="button">+/-</button>
@@ -104,21 +112,29 @@
                 <button class="button" onclick="appendNumber(3)">3</button>
                 <button class="button orange" onclick="appendOperator('+')">+</button>
                 <button class="button wide" onclick="appendNumber(0)">0</button>
-                <button class="button">.</button>
+                <button class="button" onclick="appendDecimal()">.</button>
                 <button class="button orange" onclick="calculate()">=</button>
-                </div>
             </div>
         </div>
     </div>
     <script>
         let display = document.getElementById('display');
+        let operationDisplay = document.getElementById('operation');
         let currentInput = '';
         let operator = null;
         let previousInput = '';
+        let lastOperation = null;
 
         function appendNumber(number) {
             currentInput += number;
             display.innerText = currentInput;
+        }
+
+        function appendDecimal() {
+            if (!currentInput.includes('.')) {
+                currentInput += '.';
+                display.innerText = currentInput;
+            }
         }
 
         function appendOperator(op) {
@@ -127,21 +143,35 @@
             operator = op;
             previousInput = currentInput;
             currentInput = '';
+            operationDisplay.innerText = `${previousInput} ${operator}`;
         }
 
         function clearDisplay() {
             currentInput = '';
             operator = null;
             previousInput = '';
+            lastOperation = null;
             display.innerText = '0';
+            operationDisplay.innerText = '';
         }
 
         function calculate() {
-            if (operator === null || currentInput === '') return;
+            if (operator === null && lastOperation === null) return;
             let result;
-            const prev = parseFloat(previousInput);
-            const current = parseFloat(currentInput);
-            switch (operator) {
+            let prev, current, op;
+
+            if (operator !== null) {
+                prev = parseFloat(previousInput);
+                current = parseFloat(currentInput);
+                op = operator;
+                lastOperation = { prev, current, op };
+            } else {
+                prev = parseFloat(currentInput);
+                current = lastOperation.current;
+                op = lastOperation.op;
+            }
+
+            switch (op) {
                 case '+':
                     result = prev + current;
                     break;
@@ -157,10 +187,12 @@
                 default:
                     return;
             }
+
             currentInput = result.toString();
             operator = null;
             previousInput = '';
             display.innerText = currentInput;
+            operationDisplay.innerText = '';
         }
     </script>
 </body>
