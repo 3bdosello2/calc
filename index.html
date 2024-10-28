@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iPhone-like Calculator</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+        .iphone-frame {
+            width: 360px;
+            height: 640px;
+            border-radius: 40px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            background-color: #000;
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative;
+        }
+        .notch {
+            width: 210px;
+            height: 30px;
+            background-color: #000;
+            border-radius: 20px 20px 0 0;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .calculator {
+            width: 100%;
+            height: 100%;
+            border-radius: 30px;
+            background-color: #000;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .display {
+            height: 100px;
+            background-color: #444;
+            color: #fff;
+            font-size: 2.5em;
+            text-align: right;
+            padding: 20px;
+            border-radius: 20px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+        }
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .button {
+            height: 60px;
+            background-color: #333;
+            color: #fff;
+            font-size: 1.5em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .button:active {
+            background-color: #555;
+        }
+        .button.orange {
+            background-color: #f90;
+        }
+        .button.wide {
+            grid-column: span 2;
+        }
+    </style>
+</head>
+<body>
+    <div class="iphone-frame">
+        <div class="notch"></div>
+        <div class="calculator">
+            <div class="display" id="display">0</div>
+            <div class="buttons">
+                <button class="button" onclick="clearDisplay()">AC</button>
+                <button class="button">+/-</button>
+                <button class="button">%</button>
+                <button class="button orange" onclick="appendOperator('/')">÷</button>
+                <button class="button" onclick="appendNumber(7)">7</button>
+                <button class="button" onclick="appendNumber(8)">8</button>
+                <button class="button" onclick="appendNumber(9)">9</button>
+                <button class="button orange" onclick="appendOperator('*')">×</button>
+                <button class="button" onclick="appendNumber(4)">4</button>
+                <button class="button" onclick="appendNumber(5)">5</button>
+                <button class="button" onclick="appendNumber(6)">6</button>
+                <button class="button orange" onclick="appendOperator('-')">-</button>
+                <button class="button" onclick="appendNumber(1)">1</button>
+                <button class="button" onclick="appendNumber(2)">2</button>
+                <button class="button" onclick="appendNumber(3)">3</button>
+                <button class="button orange" onclick="appendOperator('+')">+</button>
+                <button class="button wide" onclick="appendNumber(0)">0</button>
+                <button class="button">.</button>
+                <button class="button orange" onclick="calculate()">=</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let display = document.getElementById('display');
+        let currentInput = '';
+        let operator = null;
+        let previousInput = '';
+
+        function appendNumber(number) {
+            currentInput += number;
+            display.innerText = currentInput;
+        }
+
+        function appendOperator(op) {
+            if (currentInput === '') return;
+            if (operator !== null) calculate();
+            operator = op;
+            previousInput = currentInput;
+            currentInput = '';
+        }
+
+        function clearDisplay() {
+            currentInput = '';
+            operator = null;
+            previousInput = '';
+            display.innerText = '0';
+        }
+
+        function calculate() {
+            if (operator === null || currentInput === '') return;
+            let result;
+            const prev = parseFloat(previousInput);
+            const current = parseFloat(currentInput);
+            switch (operator) {
+                case '+':
+                    result = prev + current;
+                    break;
+                case '-':
+                    result = prev - current;
+                    break;
+                case '*':
+                    result = prev * current;
+                    break;
+                case '/':
+                    result = prev / current;
+                    break;
+                default:
+                    return;
+            }
+            currentInput = result.toString();
+            operator = null;
+            previousInput = '';
+            display.innerText = currentInput;
+        }
+    </script>
+</body>
+</html>
